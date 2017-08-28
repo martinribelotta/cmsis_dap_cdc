@@ -130,6 +130,16 @@ Provides definitions about:
 #define PIN_TDO_IOCON           LPC_IOCON->PIO0[9]
 #endif // (DAP_JTAG != 0)
 
+// Connect LED Pin              PIO0_11
+#define PIN_CONN_LED_IN_BIT     11
+#define PIN_CONN_LED            (1 << PIN_CONN_LED_IN_BIT)
+#define PIN_CONN_LED_IOCON      LPC_IOCON->PIO0[11]
+
+// Run LED Pin                  PIO0_12
+#define PIN_RUN_LED_IN_BIT     12
+#define PIN_RUN_LED            (1 << PIN_CONN_LED_IN_BIT)
+#define PIN_RUN_LED_IOCON      LPC_IOCON->PIO0[12]
+
 //**************************************************************************************************
 /**
 \defgroup DAP_Config_PortIO_gr CMSIS-DAP Hardware I/O Pin Access
@@ -409,6 +419,11 @@ It is recommended to provide the following LEDs for status indication:
            - 0: Connect LED OFF: debugger is not connected to CMSIS-DAP Debug Unit.
 */
 static __inline void LED_CONNECTED_OUT (uint32_t bit) {
+    if (bit) {
+        LPC_GPIO->SET[0] = PIN_CONN_LED;
+    } else {
+        LPC_GPIO->CLR[0] = PIN_CONN_LED;
+    }
 }
 
 /** Debug Unit: Set status Target Running LED.
@@ -417,7 +432,11 @@ static __inline void LED_CONNECTED_OUT (uint32_t bit) {
            - 0: Target Running LED OFF: program execution in target stopped.
 */
 static __inline void LED_RUNNING_OUT (uint32_t bit) {
-  ;             // Not available
+    if (bit) {
+        LPC_GPIO->SET[0] = PIN_RUN_LED;
+    } else {
+        LPC_GPIO->CLR[0] = PIN_RUN_LED;
+    }
 }
 
 ///@}
@@ -453,6 +472,8 @@ static __inline void DAP_SETUP (void) {
 	PIN_TDI_IOCON       = FUNC_0 | PULL_UP_ENABLED;  // TDI
 	PIN_TDO_IOCON       = FUNC_0 | PULL_UP_ENABLED;  // TDO
 #endif
+    PIN_CONN_LED_IOCON  = FUNC_0;
+    PIN_RUN_LED_IOCON   = FUNC_0;
 }
 
 /** Reset Target Device with custom specific I/O pin or command sequence.
